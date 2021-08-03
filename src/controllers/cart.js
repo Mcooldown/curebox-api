@@ -56,7 +56,7 @@ exports.getAllCartProducts = (req, res, next) => {
 
 exports.changeCartProductQuantity = (req, res, next) => {
      
-     const errors = validateResult(req);
+     const errors = validationResult(req);
      if(!errors.isEmpty()) res.status(400).json({message: "Invalid input", data: errors.array()})
 
      Cart.findById(req.params.cartProductId)

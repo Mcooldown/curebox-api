@@ -1,7 +1,5 @@
 const express = require('express');
 const {body} = require('express-validator');
-const Product = require('../models/product');
-const User = require('../models/user');
 const cartController = require('../controllers/cart');
 
 const router = express.Router();

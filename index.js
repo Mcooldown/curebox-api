@@ -10,10 +10,14 @@ const productRoutes = require('./src/routes/product');
 const articleRoutes = require('./src/routes/article');
 const authRoutes = require('./src/routes/auth');
 const cartRoutes = require('./src/routes/cart');
+const transactionRoutes = require('./src/routes/transaction');
+const forumRoutes = require('./src/routes/forum');
 app.use('/v1/products', productRoutes);
 app.use('/v1/articles', articleRoutes);
 app.use('/v1/auth', authRoutes);
 app.use('/v1/cart', cartRoutes);
+app.use('/v1/transactions', transactionRoutes);
+app.use('/v1/forums', forumRoutes);
 
 // Transfer file/data protocol
 app.use(cors())
