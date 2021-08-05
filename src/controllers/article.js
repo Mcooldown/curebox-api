@@ -21,7 +21,7 @@ exports.storeArticle = (req, res, next) => {
      const createArticle = new Article({
           title: req.body.title,
           content: req.body.content,
-          article_photo: req.file.path,
+          articlePhoto: req.file.path,
      })
      
      createArticle.save()
@@ -63,7 +63,7 @@ exports.getAllArticles = (req, res, next) => {
      });
 }
 
-exports.getArticleById = (req, res, next) => {
+exports.getArticleDetail = (req, res, next) => {
      
      Article.findById(req.params.articleId)
      .then(result => {
@@ -99,10 +99,10 @@ exports.updateArticle = (req, res, next) => {
                error.errorStatus = 404;
                throw error;
           }else {
-               if(article.article_photo) removeImage(article.article_photo);
+               if(article.articlePhoto) removeImage(article.articlePhoto);
                article.title = req.body.title;
                article.content = req.body.content;
-               article.article_photo = req.file.path;
+               article.articlePhoto = req.file.path;
           
                return article.save();
           }
@@ -129,7 +129,7 @@ exports.deleteArticle = (req, res, next) => {
                error.errorStatus = 404;
                throw err;
           }else{
-               if(article.article_photo) removeImage(article.article_photo);
+               if(article.articlePhoto) removeImage(article.article_photo);
                return Article.findByIdAndRemove(articleId);
           }
      })

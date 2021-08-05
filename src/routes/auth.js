@@ -7,14 +7,14 @@ const authController = require('../controllers/auth');
 
 const validateRegister = () => {
      return [
-          body('name').not().isEmpty().withMessage('Name must be filled'),
-          body('gender').not().isEmpty().withMessage('Gender must be filled'),
-          body('address').not().isEmpty().withMessage('Address must be filled'),
-          body('date_of_birth').not().isEmpty().withMessage('Date of Birth must be filled'),
-          body('date_of_birth').isDate('YYYY-MM-DD').withMessage('Date of Birth must be match YYYY-MM-DD'),
-          body('phone_number').not().isEmpty().withMessage('Phone Number must be filled'),
-          body('phone_number').isNumeric().withMessage('Phone Number must be filled'),
-          body('email').not().isEmpty().withMessage('Email must be filled'),
+          body('name').notEmpty().withMessage('Name must be filled'),
+          body('gender').notEmpty().withMessage('Gender must be filled'),
+          body('address').notEmpty().withMessage('Address must be filled'),
+          body('dateOfBirth').notEmpty().withMessage('Date of Birth must be filled'),
+          body('dateOfBirth').isDate('YYYY-MM-DD').withMessage('Date of Birth must be match YYYY-MM-DD'),
+          body('phoneNumber').notEmpty().withMessage('Phone Number must be filled'),
+          body('phoneNumber').isNumeric().withMessage('Phone Number must be filled'),
+          body('email').notEmpty().withMessage('Email must be filled'),
           body('email').isEmail().withMessage('Email must be valid'),
           body('email').custom(value => {
                return User.findOne({email: value})
@@ -23,9 +23,9 @@ const validateRegister = () => {
                     else return Promise.resolve();
                })
           }),
-          body('password').not().isEmpty().withMessage('Password must be filled'),
-          body('password_confirm').not().isEmpty().withMessage('Password must be filled'),
-          body('password_confirm').custom((value, {req}) => {
+          body('password').notEmpty().withMessage('Password must be filled'),
+          body('passwordConfirm').notEmpty().withMessage('Password must be filled'),
+          body('passwordConfirm').custom((value, {req}) => {
                if(value != req.body.password)return Promise.reject('Password confirmation do not match');
                else return Promise.resolve();
           }),
@@ -34,8 +34,8 @@ const validateRegister = () => {
 
 const validateLogin = () => {
      return [
-          body('email').not().isEmpty().withMessage('Email must be filled'),
-          body('password').not().isEmpty().withMessage('Password must be filled'),
+          body('email').notEmpty().withMessage('Email must be filled'),
+          body('password').notEmpty().withMessage('Password must be filled'),
      ]
 };
 

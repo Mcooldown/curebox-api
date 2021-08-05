@@ -26,7 +26,7 @@ exports.storeProduct = (req, res, next) => {
           description: req.body.description,
           price: req.body.price,
           rating: 0,
-          product_photo: req.file.path,
+          productPhoto: req.file.path,
      });
 
      createProduct.save()
@@ -112,11 +112,11 @@ exports.updateProduct = (req, res, next) => {
                err.errorStatus = 422;
                throw err;
           }else{
-               if(product.article_photo) removeImage(product.product_photo);
+               if(product.articlePhoto) removeImage(product.productPhoto);
                product.name = req.body.name;
                product.description = req.body.description;
                product.price = req.body.price;
-               product.product_photo = req.file.path;
+               product.productPhoto = req.file.path;
                return product.save();
           }
      })
@@ -141,7 +141,7 @@ exports.deleteProduct = (req, res, next) => {
                err.errorStatus = 404;
                throw err;
           }else{
-               if(product.product_photo) removeImage(product.product_photo);
+               if(product.productPhoto) removeImage(product.productPhoto);
                return Product.findByIdAndRemove(productId);
           }
      })
