@@ -36,6 +36,6 @@ app.use((error, req, res, next) => {
 // Connect Database
 mongoose.connect('mongodb+srv://vincenthadinata:dJaTYMpyjEHF2Kps@curebox.vl0av.mongodb.net/curebox?retryWrites=true&w=majority')
 .then(() => {
-     app.listen(4000, () => console.log('Connection success'));
+     app.listen(process.env.PORT || 4000, () => console.log('Connection success'));
 })
 .catch(err => console.log(err));
