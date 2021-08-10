@@ -3,6 +3,10 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 const app = express();
+
+// Transfer file/data protocol
+app.use(cors())
+
 app.use(express.json()); //kirim req data tipe json
 app.use(express.urlencoded({ extended: true }));
 
@@ -19,8 +23,6 @@ app.use('/v1/cart', cartRoutes);
 app.use('/v1/transactions', transactionRoutes);
 app.use('/v1/forums', forumRoutes);
 
-// Transfer file/data protocol
-app.use(cors())
 
 // Error Message
 app.use((error, req, res, next) => {

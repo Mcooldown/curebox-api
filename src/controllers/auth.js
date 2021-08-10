@@ -8,8 +8,16 @@ exports.register = async (req, res, next) => {
      if(!errors.isEmpty()){
           return res.status(400).send({error: "Invalid input", data: errors.array()});
      }
-
-     const createUser = new User(req.body);
+ 
+     const createUser = new User({
+          name: req.body.name,
+          gender: req.body.gender,
+          address: req.body.address,
+          dateOfBirth: req.body.dateOfBirth,
+          phoneNumber: req.body.phoneNumber,
+          email: req.body.email,
+          password: null,
+     });
 
      const salt = await bcrypt.genSalt(10);
      createUser.password = await bcrypt.hash(req.body.password, salt);
