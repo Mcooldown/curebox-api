@@ -10,6 +10,8 @@ app.use(cors())
 app.use(express.json()); //kirim req data tipe json
 app.use(express.urlencoded({ extended: true }));
 
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
 const productRoutes = require('./src/routes/product');
 const articleRoutes = require('./src/routes/article');
 const authRoutes = require('./src/routes/auth');
