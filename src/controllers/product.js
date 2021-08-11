@@ -27,6 +27,7 @@ exports.storeProduct = (req, res, next) => {
           price: req.body.price,
           rating: 0,
           productPhoto: req.file.path,
+          seller: req.sellerId,
      });
 
      createProduct.save()
@@ -37,7 +38,7 @@ exports.storeProduct = (req, res, next) => {
           });
      })
      .catch(err => {
-          console.log(err);
+          next(err);
      })
 }
 
