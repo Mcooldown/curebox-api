@@ -2,6 +2,7 @@ const {validationResult} = require('express-validator');
 const Product = require('../models/product');
 const path = require('path');
 const fs = require('fs');
+const {cloudinary} = require('../../config/cloudinary');
 
 exports.storeProduct = (req, res, next) => {
      
@@ -14,32 +15,41 @@ exports.storeProduct = (req, res, next) => {
           throw err;
      }
 
-     // cek photo
-     if(!req.file){
-          const err = new Error('Product photo must be uploaded');
-          err.errorStatus = 422;
-          throw err;
-     }
 
-     const createProduct = new Product({
-          name: req.body.name,
-          description: req.body.description,
-          price: req.body.price,
-          rating: 0,
-          productPhoto: req.file.path,
-          seller: req.sellerId,
+     const uploadImagePromise = new Promise (async(resolve, reject) => {
+          try{
+               const uploadedResponse = await cloudinary.uploader.upload(req.body.productPhoto, {
+                    upload_preset: 'curebox',
+               });
+               console.log(uploadedResponse);
+               resolve(uploadedResponse.url);
+          }catch(err){
+              reject(500);
+          }
      });
 
-     createProduct.save()
-     .then(result => {
-          res.status(201).json({
-               message: 'New Product Created',
-               data: result
+     uploadImagePromise
+     .then((urlResult) => {
+          const createProduct = new Product({
+               name: req.body.name,
+               description: req.body.description,
+               price: req.body.price,
+               rating: 0,
+               productPhoto: urlResult,
+               seller: req.body.sellerId
           });
-     })
-     .catch(err => {
-          next(err);
-     })
+          
+          createProduct.save()
+          .then(result => {
+               res.status(201).json({
+                    message: 'New Product Created',
+                    data: result
+               });
+          })
+          .catch(err => {
+               next(err);
+          })
+     } , (err) => console.log(err) );
 }
 
 exports.getAllProducts = (req, res, next) => {

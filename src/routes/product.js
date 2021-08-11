@@ -1,6 +1,6 @@
 const express = require('express');
 const {body} = require('express-validator');
-const upload = require('../../config/multer/product')
+// const upload = require('../../config/multer/product')
 
 const router = express.Router();
 const productController = require('../controllers/product');
@@ -13,10 +13,10 @@ const validateInput = () => {
      ];
 }
 
-router.post('/', upload, validateInput() , productController.storeProduct);
+router.post('/', validateInput() , productController.storeProduct);
 router.get('/', productController.getAllProducts);
 router.get('/:productId', productController.getProductById);
-router.put('/:productId', upload, validateInput(), productController.updateProduct);
+router.put('/:productId', validateInput(), productController.updateProduct);
 router.delete('/:productId', productController.deleteProduct);
 
 

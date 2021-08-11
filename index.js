@@ -8,8 +8,8 @@ const app = express();
 // Transfer file/data protocol
 app.use(cors())
 
-app.use(express.json()); //kirim req data tipe json
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({limit: '50mb'})); //kirim req data tipe json
+app.use(express.urlencoded({ extended: true, limit:'50mb' }));
 
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
