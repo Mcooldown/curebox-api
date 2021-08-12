@@ -61,6 +61,7 @@ exports.getAllProducts = (req, res, next) => {
      .then(count => {
           totalData = count;
           return Product.find()
+          .populate('seller')
           .skip((parseInt(currentPage)-1)*parseInt(perPage))
           .limit(parseInt(perPage));
      })
@@ -83,6 +84,7 @@ exports.getProductById = (req, res, next) => {
      const productId = req.params.productId;
 
      Product.findById(productId)
+     .populate('seller')
      .then(result => {
           if(!result) {
                const error = new Error("Product not found");
