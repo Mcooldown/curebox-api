@@ -8,6 +8,7 @@ const TransactionHeader = new Schema({
      receiverName: {type: String, required: true},
      receiverPhoneNumber: {type: String, required: true},
      notes: {type: String, required: false},
+     amount: {type: Number, required: true},
 },{
      timestamps: true,
 });
