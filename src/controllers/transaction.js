@@ -15,6 +15,7 @@ exports.storeNewTransaction = (req, res, next) => {
           sendAddress: req.body.sendAddress,
           receiverName: req.body.receiverName,
           receiverPhoneNumber: req.body.receiverPhoneNumber,
+          notes: req.body.notes,
      });
 
      newTransactionHeader.save()

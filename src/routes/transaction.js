@@ -10,7 +10,6 @@ const validateInput = () => {
           body('receiverName').notEmpty().withMessage("Receiver name must be filled"),
           body('receiverPhoneNumber').notEmpty().withMessage("Receiver phone number must be filled"),
           body('receiverPhoneNumber').isNumeric().withMessage("Receiver phone number must numeric"),
-          body('notes').notEmpty().withMessage("Notes must be filled"),
      ];
 };
 
