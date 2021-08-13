@@ -35,7 +35,7 @@ exports.storeNewTransaction = (req, res, next) => {
           return Cart.deleteMany({user: req.body.userId});
      })
      .then(result => {
-          res.status(200).json({message: "New Transaction Created", data: header});
+          res.status(200).json({message: "New Transaction Created", data: result});
      })
      .catch(err => {
           next(err);
