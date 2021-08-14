@@ -79,6 +79,32 @@ exports.getAllProducts = (req, res, next) => {
      });
 }
 
+exports.getProductsBySeller = (req, res, next) => {
+
+     const perPage = req.query.perPage || 10;
+     const currentPage = req.query.currentPage || 1;
+
+     Product.find({seller: req.params.sellerId}).countDocuments()
+     .then(count => {
+          totalData = count;
+          return Product.find({seller: req.params.sellerId})
+          .skip((parseInt(currentPage)-1)*parseInt(perPage))
+          .limit(parseInt(perPage));
+     })
+     .then(result => {
+          res.status(200).json({
+               message : "All Product Fetched",
+               data: result,
+               total_data: totalData,
+               per_page: perPage,
+               current_page: currentPage,
+          });
+     })
+     .catch(err => {
+          next(err);
+     });
+}
+
 exports.getProductById = (req, res, next) => {
 
      const productId = req.params.productId;

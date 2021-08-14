@@ -15,6 +15,7 @@ const validateInput = () => {
 
 router.post('/', validateInput() , productController.storeProduct);
 router.get('/', productController.getAllProducts);
+router.get('/store/:sellerId', productController.getProductsBySeller);
 router.get('/:productId', productController.getProductById);
 router.put('/:productId', validateInput(), productController.updateProduct);
 router.delete('/:productId', productController.deleteProduct);
