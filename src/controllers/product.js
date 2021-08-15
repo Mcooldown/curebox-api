@@ -138,36 +138,50 @@ exports.updateProduct = (req, res, next) => {
           throw err;
      }
 
-     const productId = req.params.productId;
-
-     Product.findById(productId)
-     .then(product =>{
-          if(!product){
-               const err = new Error("Product not found");
-               err.errorStatus = 404;
-               throw err;
-          }else if(!req.file){
-               const err = new Error('Product photo must be uploaded');
-               err.errorStatus = 422;
-               throw err;
-          }else{
-               if(product.articlePhoto) removeImage(product.productPhoto);
-               product.name = req.body.name;
-               product.description = req.body.description;
-               product.price = req.body.price;
-               product.productPhoto = req.file.path;
-               return product.save();
+     const uploadImagePromise = new Promise (async(resolve, reject) => {
+          try{
+               const uploadedResponse = await cloudinary.uploader.upload(req.body.productPhoto, {
+                    upload_preset: 'curebox',
+               });
+               console.log(uploadedResponse);
+               resolve(uploadedResponse.url);
+          }catch(err){
+              resolve(500);
           }
-     })
-     .then(result => {
-          res.status(200).json({
-               message: "Product updated",
-               data: result,
-          });
-     })
-     .catch(err => {
-          next(err);
-     })
+     });
+
+      uploadImagePromise
+     .then((urlResult) => {
+          const newImage = urlResult;
+          const productId = req.params.productId;
+
+          Product.findById(productId)
+          .then(product =>{
+               if(!product){
+                    const err = new Error("Product not found");
+                    err.errorStatus = 404;
+                    throw err;
+               }else{
+                    product.name = req.body.name;
+                    product.description = req.body.description;
+                    product.price = req.body.price;
+                    product.productPhoto = newImage !== 500 ? newImage : product.productPhoto;
+                    return product.save();
+               }
+          })
+          .then(result => {
+               res.status(200).json({
+                    message: "Product updated",
+                    data: result,
+               });
+          })
+          .catch(err => {
+               next(err);
+          })
+
+     }, null);
+
+     
 }
 
 exports.deleteProduct = (req, res, next) => {
@@ -180,7 +194,6 @@ exports.deleteProduct = (req, res, next) => {
                err.errorStatus = 404;
                throw err;
           }else{
-               if(product.productPhoto) removeImage(product.productPhoto);
                return Product.findByIdAndRemove(productId);
           }
      })
@@ -194,9 +207,4 @@ exports.deleteProduct = (req, res, next) => {
           next(err);
      })
 
-}
-
-const removeImage = (filePath) => {
-     filePath = path.join(__dirname, '../..', filePath);
-     fs.unlink(filePath, err => console.log(err));
 }
