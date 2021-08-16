@@ -56,11 +56,16 @@ exports.getAllProducts = (req, res, next) => {
 
      const perPage = req.query.perPage || 10;
      const currentPage = req.query.currentPage || 1;
+     const searchValue= req.query.searchValue || null;
 
-     Product.find({isDeleted: false}).countDocuments()
+     const querySearch = req.query.searchValue ? 
+     {isDeleted: false, name: { "$regex": searchValue, "$options": "i" }} : 
+     {isDeleted: false};
+
+     Product.find(querySearch).countDocuments()
      .then(count => {
           totalData = count;
-          return Product.find({isDeleted:false})
+          return Product.find(querySearch)
           .populate('seller')
           .skip((parseInt(currentPage)-1)*parseInt(perPage))
           .limit(parseInt(perPage));
