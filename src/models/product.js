@@ -9,6 +9,7 @@ const Product = new Schema({
      rating: {type: Number, required:true, default: 0},
      productPhoto: {type: String, required: true},
      seller: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
+     isDeleted: {type: Boolean, required: true},
 },{
      timestamps: true,
 });

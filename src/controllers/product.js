@@ -1,7 +1,6 @@
 const {validationResult} = require('express-validator');
 const Product = require('../models/product');
-const path = require('path');
-const fs = require('fs');
+const Cart = require('../models/cart');
 const {cloudinary} = require('../../config/cloudinary');
 
 exports.storeProduct = (req, res, next) => {
@@ -36,7 +35,8 @@ exports.storeProduct = (req, res, next) => {
                price: req.body.price,
                rating: 0,
                productPhoto: urlResult,
-               seller: req.body.sellerId
+               seller: req.body.sellerId,
+               isDeleted: false,
           });
           
           createProduct.save()
@@ -57,10 +57,10 @@ exports.getAllProducts = (req, res, next) => {
      const perPage = req.query.perPage || 10;
      const currentPage = req.query.currentPage || 1;
 
-     Product.find().countDocuments()
+     Product.find({isDeleted: false}).countDocuments()
      .then(count => {
           totalData = count;
-          return Product.find()
+          return Product.find({isDeleted:false})
           .populate('seller')
           .skip((parseInt(currentPage)-1)*parseInt(perPage))
           .limit(parseInt(perPage));
@@ -84,10 +84,10 @@ exports.getProductsBySeller = (req, res, next) => {
      const perPage = req.query.perPage || 10;
      const currentPage = req.query.currentPage || 1;
 
-     Product.find({seller: req.params.sellerId}).countDocuments()
+     Product.find({seller: req.params.sellerId, isDeleted: false}).countDocuments()
      .then(count => {
           totalData = count;
-          return Product.find({seller: req.params.sellerId})
+          return Product.find({seller: req.params.sellerId, isDeleted: false})
           .skip((parseInt(currentPage)-1)*parseInt(perPage))
           .limit(parseInt(perPage));
      })
@@ -194,7 +194,9 @@ exports.deleteProduct = (req, res, next) => {
                err.errorStatus = 404;
                throw err;
           }else{
-               return Product.findByIdAndRemove(productId);
+               product.isDeleted = true;
+               product.save();
+               return Cart.deleteMany({product: product._id});
           }
      })
      .then(result => {
