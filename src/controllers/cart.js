@@ -45,7 +45,12 @@ exports.addProductToCart = async (req, res, next) => {
 exports.getAllCartProducts = (req, res, next) => {
      
      Cart.find({user: req.params.userId})
-     .populate('product')
+     .populate({
+          path: 'product',
+          populate:  {
+               path: 'seller',
+          }
+     })
      .then(result => {
           res.status(200).json({message: "All Product on Cart fetched", data: result});
      })

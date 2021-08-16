@@ -58,7 +58,12 @@ exports.getTransactionDetail = (req, res, next) => {
      
      TransactionDetail.find({transaction: req.params.transactionId})
      .populate('transaction')
-     .populate('product')
+     .populate({
+          path: 'product',
+          populate : {
+               path: 'seller',
+          }
+     })
      .then(result => {
           if(!result) res.status(404).json({message: "Transaction Detail not Found"});
           
