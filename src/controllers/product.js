@@ -20,7 +20,6 @@ exports.storeProduct = (req, res, next) => {
                const uploadedResponse = await cloudinary.uploader.upload(req.body.productPhoto, {
                     upload_preset: 'curebox',
                });
-               console.log(uploadedResponse);
                resolve(uploadedResponse.url);
           }catch(err){
               reject(500);

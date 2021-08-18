@@ -2,38 +2,48 @@ const {validationResult} = require('express-validator');
 const Article = require('../models/article');
 const path = require('path');
 const fs = require('fs');
+const { cloudinary } = require('../../config/cloudinary');
 
 exports.storeArticle = (req, res, next) => {
 
      const errors = validationResult(req);
      if(!errors.isEmpty()){
-          const error = new Error("Value invalid");
-          error.errorStatus = 400;
+          const err = new Error("Value invalid");
+          err.errorStatus = 400;
           throw err;
      }
 
-     if(!req.file){
-          const error = new Error("Article photo must be uploaded or match required format");
-          error.errorStatus = 422;
-          throw err;
-     }
-
-     const createArticle = new Article({
-          title: req.body.title,
-          content: req.body.content,
-          articlePhoto: req.file.path,
-     })
-     
-     createArticle.save()
-     .then(result =>{
-          res.status(200).json({
-               message: "New Article Stored",
-               data: result,
-          });
-     })
-     .catch(err =>{
-          next(err);
+     const uploadImagePromise = new Promise (async(resolve, reject) => {
+          try{
+               const uploadedResponse = await cloudinary.uploader.upload(req.body.articlePhoto, {
+                    upload_preset: 'curebox',
+               });
+               resolve(uploadedResponse.url);
+          }catch(err){
+              reject(err);
+          }
      });
+
+     uploadImagePromise
+     .then((urlResult) => {
+         const createArticle = new Article({
+               title: req.body.title,
+               content: req.body.content,
+               articlePhoto: urlResult,
+               user: req.body.userId,
+          })
+          
+          createArticle.save()
+          .then(result => {
+               res.status(201).json({
+                    message: 'New Article Created',
+                    data: result
+               });
+          })
+          .catch(err => {
+               next(err);
+          })
+     } , (err) => console.log(err) );
 }
 
 exports.getAllArticles = (req, res, next) => {
@@ -46,6 +56,7 @@ exports.getAllArticles = (req, res, next) => {
           totalData = count;
 
           return Article.find()
+          .populate('user')
           .skip((parseInt(currentPage)-1)*parseInt(perPage))
           .limit(parseInt(perPage));
      })
@@ -66,6 +77,7 @@ exports.getAllArticles = (req, res, next) => {
 exports.getArticleDetail = (req, res, next) => {
      
      Article.findById(req.params.articleId)
+     .populate('user')
      .then(result => {
 
           if(!result){
