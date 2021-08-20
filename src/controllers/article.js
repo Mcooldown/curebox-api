@@ -74,6 +74,34 @@ exports.getAllArticles = (req, res, next) => {
      });
 }
 
+exports.getUserArticles = (req, res, next) => {
+
+     const perPage = req.query.perPage || 4;
+     const currentPage = req.query.currentPage || 1;
+
+     Article.find({user: req.params.userId}).countDocuments()
+     .then(count => {
+          totalData = count;
+
+          return Article.find({user: req.params.userId})
+          .populate('user')
+          .skip((parseInt(currentPage)-1)*parseInt(perPage))
+          .limit(parseInt(perPage));
+     })
+     .then(result =>{
+          res.status(200).json({
+               message: "All Articles Fetched",
+               data: result,
+               total_data: totalData,
+               current_page: currentPage,
+               per_page: perPage, 
+          });
+     })
+     .catch(err => {
+          next(err);
+     });
+}
+
 exports.getArticleDetail = (req, res, next) => {
      
      Article.findById(req.params.articleId)

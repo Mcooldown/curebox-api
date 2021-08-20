@@ -13,6 +13,7 @@ const validateInput = () => {
 
 router.post('/', validateInput(), articleController.storeArticle);
 router.get('/', articleController.getAllArticles);
+router.get('/user/:userId', articleController.getUserArticles);
 router.get('/:articleId', articleController.getArticleDetail);
 router.put('/:articleId', validateInput() , articleController.updateArticle);
 router.delete('/:articleId', articleController.deleteArticle);
