@@ -132,30 +132,47 @@ exports.updateArticle = (req, res, next) => {
           throw error;
      }
 
-     Article.findById(req.params.articleId)
-     .then(article =>{
-          if(!article){
-               const error = new Error("Article not found");
-               error.errorStatus = 404;
-               throw error;
-          }else {
-               if(article.articlePhoto) removeImage(article.articlePhoto);
-               article.title = req.body.title;
-               article.content = req.body.content;
-               article.articlePhoto = req.file.path;
-          
-               return article.save();
+     const uploadImagePromise = new Promise (async(resolve, reject) => {
+          try{
+               const uploadedResponse = await cloudinary.uploader.upload(req.body.productPhoto, {
+                    upload_preset: 'curebox',
+               });
+               console.log(uploadedResponse);
+               resolve(uploadedResponse.url);
+          }catch(err){
+              resolve(500);
           }
-     })
-     .then(result => {
-          res.status(200).json({
-               message: "Article Updated",
-               data: result,
-          });
-     })
-     .catch(err => {
-          next(err);
      });
+
+      uploadImagePromise
+     .then((urlResult) => {
+          const newImage = urlResult;
+          const articleId = req.params.articleId;
+
+          Article.findById(articleId)
+          .then(article =>{
+               if(!article){
+                    const err = new Error("Article not found");
+                    err.errorStatus = 404;
+                    throw err;
+               }else{
+                    article.title = req.body.title;
+                    article.content = req.body.content;
+                    article.articlePhoto = newImage !== 500 ? newImage : articlePhoto;
+                    return article.save();
+               }
+          })
+          .then(result => {
+               res.status(200).json({
+                    message: "Article updated",
+                    data: result,
+               });
+          })
+          .catch(err => {
+               next(err);
+          })
+
+     }, null);
 }
 
 exports.deleteArticle = (req, res, next) => {
@@ -169,7 +186,6 @@ exports.deleteArticle = (req, res, next) => {
                error.errorStatus = 404;
                throw err;
           }else{
-               if(article.articlePhoto) removeImage(article.article_photo);
                return Article.findByIdAndRemove(articleId);
           }
      })
@@ -182,9 +198,4 @@ exports.deleteArticle = (req, res, next) => {
      .catch(err => {
           next(err);
      })
-}
-
-const removeImage = (filePath) => {
-     filePath = path.join(__dirname, '../..', filePath);
-     fs.unlink(filePath, err => console.log(err));
 }
