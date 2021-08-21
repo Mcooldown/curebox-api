@@ -1,7 +1,5 @@
 const {validationResult} = require('express-validator');
 const Article = require('../models/article');
-const path = require('path');
-const fs = require('fs');
 const { cloudinary } = require('../../config/cloudinary');
 
 exports.storeArticle = (req, res, next) => {
@@ -126,18 +124,18 @@ exports.getArticleDetail = (req, res, next) => {
 
 exports.updateArticle = (req, res, next) => {
 
-     if(!req.file){
-          const error = new Error("Image must be uploaded or match required format");
-          error.errorStatus = 422;
-          throw error;
+     const errors = validationResult(req);
+     if(!errors.isEmpty()){
+          const err = new Error("Value invalid");
+          err.errorStatus = 400;
+          throw err;
      }
 
      const uploadImagePromise = new Promise (async(resolve, reject) => {
           try{
-               const uploadedResponse = await cloudinary.uploader.upload(req.body.productPhoto, {
+               const uploadedResponse = await cloudinary.uploader.upload(req.body.articlePhoto, {
                     upload_preset: 'curebox',
                });
-               console.log(uploadedResponse);
                resolve(uploadedResponse.url);
           }catch(err){
               resolve(500);
@@ -158,7 +156,7 @@ exports.updateArticle = (req, res, next) => {
                }else{
                     article.title = req.body.title;
                     article.content = req.body.content;
-                    article.articlePhoto = newImage !== 500 ? newImage : articlePhoto;
+                    article.articlePhoto = newImage !== 500 ? newImage : article.articlePhoto;
                     return article.save();
                }
           })
