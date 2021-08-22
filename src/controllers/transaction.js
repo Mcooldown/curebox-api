@@ -12,7 +12,12 @@ exports.storeNewTransaction = (req, res, next) => {
 
      const newTransactionHeader = new TransactionHeader({
           user: req.body.userId,
-          sendAddress: req.body.sendAddress,
+          sendAddress: req.body.address + 
+          ', Kelurahan ' + req.body.urbanVillage + 
+          ', Kecamatan ' + req.body.subDistrict +
+          ', Kota/Kabupaten ' + req.body.cityDistrict +
+          ', Provinsi ' + req.body.province + 
+          ' ' + req.body.postalCode, 
           receiverName: req.body.receiverName,
           receiverPhoneNumber: req.body.receiverPhoneNumber,
           notes: req.body.notes,
