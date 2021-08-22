@@ -13,6 +13,7 @@ const validateInput = () => {
           body('urbanVillage').notEmpty().withMessage("Urban Village must be filled"),
           body('postalCode').notEmpty().withMessage("Postal Code must be filled"),
           body('postalCode').isNumeric().withMessage("Postal Code must be number"),
+          body('receiverName').notEmpty().withMessage("Receiver Name must be filled"),
           body('receiverPhoneNumber').notEmpty().withMessage("Receiver Phone Number must be filled"),
           body('receiverPhoneNumber').isNumeric().withMessage("Receiver Phone Number must be number"),
      ];
