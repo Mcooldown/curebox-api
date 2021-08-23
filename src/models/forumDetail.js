@@ -7,6 +7,8 @@ const ForumDetail = new Schema({
      user: {type: Schema.Types.ObjectId, required: true, ref: 'User'},
      content: {type: String, required: true},
      forumPhoto: {type: String, required: false},
+},{
+     timestamps: true,
 });
 
 module.exports = mongoose.model('ForumDetail', ForumDetail);

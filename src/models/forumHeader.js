@@ -7,6 +7,8 @@ const ForumHeader = new Schema ({
      title: {type: String, required: true},
      content: {type: String, required: true},
      forumPhoto: {type: String, required: false},
+},{
+     timestamps: true,
 });
 
 module.exports = mongoose.model('ForumHeader', ForumHeader);

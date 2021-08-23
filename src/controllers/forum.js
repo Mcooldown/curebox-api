@@ -1,28 +1,45 @@
 const {validationResult} = require('express-validator');
 const ForumHeader = require('../models/forumHeader');
 const ForumDetail = require('../models/forumDetail');
+const { cloudinary } = require('../../config/cloudinary');
 
 exports.storeNewHeader = (req, res, next) => {
 
      const errors = validationResult(req);
      if(!errors.isEmpty()) res.status(400).send({message: "Invalid value", data: errors.array()});
 
-     const newHeader = new ForumHeader({
-          user: req.body.userId,
-          title: req.body.title,
-          content: req.body.content,
-          forumPhoto: null,
+     const uploadImagePromise = new Promise (async(resolve, reject) => {
+          try{
+               const uploadedResponse = await cloudinary.uploader.upload(req.body.forumPhoto, {
+                    upload_preset: 'curebox',
+               });
+               resolve(uploadedResponse.url);
+          }catch(err){
+              resolve(500);
+          }
      });
 
-     if(req.file) newHeader.forumPhoto = req.file.path;
+     uploadImagePromise
+     .then((urlResult) => {
 
-     newHeader.save()
-     .then(result => {
-          res.status(200).json({message: "New Forum Header Created", data: result});
-     })
-     .catch(err => {
-          next(err);
-     });
+          const newHeader = new ForumHeader({
+               user: req.body.userId,
+               title: req.body.title,
+               content: req.body.content,
+               forumPhoto: urlResult !== 500 ? urlResult: null,
+          });
+          
+          newHeader.save()
+          .then(result => {
+               res.status(201).json({
+                    message: 'New Forum Created',
+                    data: result
+               });
+          })
+          .catch(err => {
+               next(err);
+          })
+     } , (err) => console.log(err) );
 }
 
 exports.storeNewDetail = (req, res, next) => {
@@ -30,22 +47,37 @@ exports.storeNewDetail = (req, res, next) => {
      const errors = validationResult(req);
      if(!errors.isEmpty()) res.status(400).send({message: "Invalid value", data: errors.array()});
 
-     const newForumDetail = new ForumDetail({
-          forumHeader: req.params.forumHeaderId,
-          user: req.body.userId,
-          content: req.body.content,
-          forumPhoto: null,
+     const uploadImagePromise = new Promise (async(resolve, reject) => {
+          try{
+               const uploadedResponse = await cloudinary.uploader.upload(req.body.forumPhoto, {
+                    upload_preset: 'curebox',
+               });
+               resolve(uploadedResponse.url);
+          }catch(err){
+              resolve(500);
+          }
      });
 
-     if(req.file) newDetail.forumPhoto = req.file.path;
-
-     newForumDetail.save()
-     .then(result => {
-          res.status(200).json({message: "New Forum Detail Created", data: result});
-     })
-     .catch(err => {
-          next(err);
-     });
+     uploadImagePromise
+     .then((urlResult) => {
+          const newForumDetail = new ForumDetail({
+               forumHeader: req.params.forumHeaderId,
+               user: req.body.userId,
+               content: req.body.content,
+               forumPhoto: urlResult !== 500 ? urlResult: null,
+          });
+          
+          newForumDetail.save()
+          .then(result => {
+               res.status(201).json({
+                    message: 'New Forum Detail Created',
+                    data: result
+               });
+          })
+          .catch(err => {
+               next(err);
+          })
+     } , (err) => console.log(err) );
 }
 
 exports.getAllForumHeaders = (req, res, next) => {
@@ -57,6 +89,7 @@ exports.getAllForumHeaders = (req, res, next) => {
      .then(count => {
           totalData = count;
           return ForumHeader.find()
+          .populate('user')
           .skip((parseInt(currentPage)-1)*parseInt(perPage))
           .limit(parseInt(perPage));
      })
@@ -74,12 +107,29 @@ exports.getAllForumHeaders = (req, res, next) => {
      });
 }
 
+exports.getForumHeader = (req, res, next) => {
+     ForumHeader.findById(req.params.forumHeaderId)
+     .populate('user')
+     .then(result => {
+          if(!result) res.status(404).json({message: "Forum header not found"});
+          else{
+               res.status(200).json({
+                    message: "Forum fetched",
+                    data: result,
+               })
+          }
+     })
+     .catch(err =>{
+          next(err);
+     });
+}
+
 exports.getAllForumDetails = (req, res, next) => {
 
      ForumDetail.find({forumHeader: req.params.forumHeaderId}).countDocuments()
      .then(count => {
           totalData = count;
-          return ForumDetail.find({forumHeader: req.params.forumHeaderId});
+          return ForumDetail.find({forumHeader: req.params.forumHeaderId}).populate('user');
      })
      .then(result => {
           res.status(200).json({

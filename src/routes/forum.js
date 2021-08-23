@@ -2,7 +2,6 @@ const express = require('express');
 const {body} = require('express-validator');
 
 const forumController = require('../controllers/forum');
-const upload = require('../../config/multer/forum');
 
 const router = express.Router();
 
@@ -19,12 +18,13 @@ const validateForumDetail = () => {
      ]
 }
 
-router.post('/', upload, validateForumHeader(), forumController.storeNewHeader);
-router.post('/detail/:forumHeaderId', upload, validateForumDetail() ,forumController.storeNewDetail);
+router.post('/', validateForumHeader(), forumController.storeNewHeader);
+router.post('/detail/:forumHeaderId', validateForumDetail() ,forumController.storeNewDetail);
+router.get('/:forumHeaderId', forumController.getForumHeader);
 router.get('/', forumController.getAllForumHeaders);
 router.get('/detail/:forumHeaderId', forumController.getAllForumDetails);
-router.put('/:forumHeaderId', upload, validateForumHeader(), forumController.updateForumHeader);
-router.put('/detail/:forumDetailId', upload, validateForumDetail(), forumController.updateForumDetail);
+router.put('/:forumHeaderId', validateForumHeader(), forumController.updateForumHeader);
+router.put('/detail/:forumDetailId', validateForumDetail(), forumController.updateForumDetail);
 router.delete('/:forumHeaderId', forumController.deleteForumHeader);
 router.delete('/detail/:forumDetailId', forumController.deleteForumDetail);
 
