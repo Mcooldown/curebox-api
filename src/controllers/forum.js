@@ -90,6 +90,7 @@ exports.getAllForumHeaders = (req, res, next) => {
           totalData = count;
           return ForumHeader.find()
           .populate('user')
+          .sort({createdAt: 'desc'})
           .skip((parseInt(currentPage)-1)*parseInt(perPage))
           .limit(parseInt(perPage));
      })
