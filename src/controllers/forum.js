@@ -129,7 +129,9 @@ exports.getAllForumDetails = (req, res, next) => {
      ForumDetail.find({forumHeader: req.params.forumHeaderId}).countDocuments()
      .then(count => {
           totalData = count;
-          return ForumDetail.find({forumHeader: req.params.forumHeaderId}).populate('user');
+          return ForumDetail.find({forumHeader: req.params.forumHeaderId})
+          .sort({createdAt: 'desc'})
+          .populate('user');
      })
      .then(result => {
           res.status(200).json({
@@ -173,23 +175,43 @@ exports.updateForumDetail = (req, res, next) => {
      const errors = validationResult(req);
      if(!errors.isEmpty()) res.status(200).json({message: "Invalid value", data: errors.array()});
 
-     ForumDetail.findById(req.params.forumDetailId)
-     .then(forumDetail => {
-
-          if(!forumDetail) res.status(404).json({message: "Forum detail not found"});
-          if(forumDetail.forumPhoto) removeImage(forumDetail.forumPhoto);
-          
-          forumDetail.content = req.body.content;
-          if(req.file) forumDetail.forumPhoto = req.file.path; 
-
-          return forumDetail.save();
-     })
-     .then(result => {
-          res.status(200).json({message: "Forum Detail updated", data: result});
-     })
-     .catch(err => {
-          next(err);
+     const uploadImagePromise = new Promise (async(resolve, reject) => {
+          try{
+               const uploadedResponse = await cloudinary.uploader.upload(req.body.forumPhoto, {
+                    upload_preset: 'curebox',
+               });
+               resolve(uploadedResponse.url);
+          }catch(err){
+              resolve(500);
+          }
      });
+
+      uploadImagePromise
+     .then((urlResult) => {
+          const newImage = urlResult;
+          const forumDetailId = req.params.forumDetailId;
+
+          ForumDetail.findById(forumDetailId)
+          .then(forumDetail =>{
+               if(!forumDetail){
+                    res.status(404).json({message: "Forum detail not found"});
+               }else{
+                    forumDetail.content = req.body.content;
+                    forumDetail.forumPhoto = newImage !== 500 ? newImage : forumDetail.forumPhoto;
+                    return forumDetail.save();
+               }
+          })
+          .then(result => {
+               res.status(200).json({
+                    message: "Product updated",
+                    data: result,
+               });
+          })
+          .catch(err => {
+               next(err);
+          })
+
+     }, null);
 }
 
 exports.deleteForumHeader = (req, res, next) => {
@@ -225,9 +247,4 @@ exports.deleteForumDetail = (req, res, next) => {
      .catch(err => {
           next(err);
      });
-}
-
-const removeImage = (filePath) => {
-     filePath = path.join(__dirname, '../..', filePath);
-     fs.unlink(filePath, err => console.log(err));
 }
