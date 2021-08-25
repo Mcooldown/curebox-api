@@ -151,24 +151,44 @@ exports.updateForumHeader = (req, res, next) => {
      const errors = validationResult(req);
      if(!errors.isEmpty()) res.status(200).json({message: "Invalid value", data: errors.array()});
 
-     ForumHeader.findById(req.params.forumHeaderId)
-     .then(forumHeader => {
-
-          if(!forumHeader) res.status(404).json({message: "Forum header not found"});
-          if(forumHeader.forumPhoto) removeImage(forumHeader.forumPhoto);
-          
-          forumHeader.title = req.body.title;
-          forumHeader.content = req.body.content;
-          if(req.file) forumHeader.forumPhoto = req.file.path;
-
-          return forumHeader.save();
-     })
-     .then(result => {
-          res.status(200).json({message: "Forum Header updated", data: result});
-     })
-     .catch(err => {
-          next(err);
+     const uploadImagePromise = new Promise (async(resolve, reject) => {
+          try{
+               const uploadedResponse = await cloudinary.uploader.upload(req.body.forumPhoto, {
+                    upload_preset: 'curebox',
+               });
+               resolve(uploadedResponse.url);
+          }catch(err){
+              resolve(500);
+          }
      });
+
+      uploadImagePromise
+     .then((urlResult) => {
+          const newImage = urlResult;
+          const forumHeaderId = req.params.forumHeaderId;
+
+          ForumHeader.findById(forumHeaderId)
+          .then(forumHeader =>{
+               if(!forumHeader){
+                    res.status(404).json({message: "Forum not found"});
+               }else{
+                    forumHeader.title = req.body.title;
+                    forumHeader.content = req.body.content;
+                    forumHeader.forumPhoto = newImage !== 500 ? newImage : forumHeader.forumPhoto;
+                    return forumHeader.save();
+               }
+          })
+          .then(result => {
+               res.status(200).json({
+                    message: "Forum updated",
+                    data: result,
+               });
+          })
+          .catch(err => {
+               next(err);
+          })
+
+     }, null);
 }
 
 exports.updateForumDetail = (req, res, next) => {
@@ -204,7 +224,7 @@ exports.updateForumDetail = (req, res, next) => {
           })
           .then(result => {
                res.status(200).json({
-                    message: "Product updated",
+                    message: "Forum Reply updated",
                     data: result,
                });
           })
