@@ -15,7 +15,7 @@ exports.register = async (req, res, next) => {
                const uploadedResponse = await cloudinary.uploader.upload(req.body.profilePhoto, {
                     upload_preset: 'curebox',
                });
-               resolve(uploadedResponse.url);
+               resolve(uploadedResponse.secure_url);
           }catch(err){
               reject(err);
           }

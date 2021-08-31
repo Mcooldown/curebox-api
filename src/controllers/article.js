@@ -16,7 +16,7 @@ exports.storeArticle = (req, res, next) => {
                const uploadedResponse = await cloudinary.uploader.upload(req.body.articlePhoto, {
                     upload_preset: 'curebox',
                });
-               resolve(uploadedResponse.url);
+               resolve(uploadedResponse.secure_url);
           }catch(err){
               reject(err);
           }
@@ -136,7 +136,7 @@ exports.updateArticle = (req, res, next) => {
                const uploadedResponse = await cloudinary.uploader.upload(req.body.articlePhoto, {
                     upload_preset: 'curebox',
                });
-               resolve(uploadedResponse.url);
+               resolve(uploadedResponse.secure_url);
           }catch(err){
               resolve(500);
           }

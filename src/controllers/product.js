@@ -20,7 +20,7 @@ exports.storeProduct = (req, res, next) => {
                const uploadedResponse = await cloudinary.uploader.upload(req.body.productPhoto, {
                     upload_preset: 'curebox',
                });
-               resolve(uploadedResponse.url);
+               resolve(uploadedResponse.secure_url);
           }catch(err){
               reject(500);
           }
@@ -147,7 +147,7 @@ exports.updateProduct = (req, res, next) => {
                const uploadedResponse = await cloudinary.uploader.upload(req.body.productPhoto, {
                     upload_preset: 'curebox',
                });
-               resolve(uploadedResponse.url);
+               resolve(uploadedResponse.secure_url);
           }catch(err){
               resolve(500);
           }

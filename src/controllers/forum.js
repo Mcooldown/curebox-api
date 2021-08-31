@@ -13,7 +13,7 @@ exports.storeNewHeader = (req, res, next) => {
                const uploadedResponse = await cloudinary.uploader.upload(req.body.forumPhoto, {
                     upload_preset: 'curebox',
                });
-               resolve(uploadedResponse.url);
+               resolve(uploadedResponse.secure_url);
           }catch(err){
               resolve(500);
           }
@@ -52,7 +52,7 @@ exports.storeNewDetail = (req, res, next) => {
                const uploadedResponse = await cloudinary.uploader.upload(req.body.forumPhoto, {
                     upload_preset: 'curebox',
                });
-               resolve(uploadedResponse.url);
+               resolve(uploadedResponse.secure_url);
           }catch(err){
               resolve(500);
           }
@@ -156,7 +156,7 @@ exports.updateForumHeader = (req, res, next) => {
                const uploadedResponse = await cloudinary.uploader.upload(req.body.forumPhoto, {
                     upload_preset: 'curebox',
                });
-               resolve(uploadedResponse.url);
+               resolve(uploadedResponse.secure_url);
           }catch(err){
               resolve(500);
           }
@@ -201,7 +201,7 @@ exports.updateForumDetail = (req, res, next) => {
                const uploadedResponse = await cloudinary.uploader.upload(req.body.forumPhoto, {
                     upload_preset: 'curebox',
                });
-               resolve(uploadedResponse.url);
+               resolve(uploadedResponse.secure_url);
           }catch(err){
               resolve(500);
           }
