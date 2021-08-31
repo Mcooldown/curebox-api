@@ -39,6 +39,7 @@ const validateLogin = () => {
      ]
 };
 
+router.get('/user/:userId', authController.getUserById);
 router.post('/register', validateRegister(), authController.register);
 router.post('/login', validateLogin(), authController.login);
 
